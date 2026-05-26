@@ -1,0 +1,42 @@
+---
+import { getBooks, deleteBook, addBook } from "../lib/db.js";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.has("delete")) {
+    deleteBook(Number(form.get("delete")));
+  } else {
+    addBook(form.get("title"), form.get("author"));
+  }
+  return Astro.redirect("/");
+}
+
+const books = getBooks();
+---
+<!doctype html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Libros</title></head>
+<body>
+  <h1>Libros</h1>
+
+  <h2>Añadir libro</h2>
+  <form method="POST">
+    <input name="title" placeholder="Título" required>
+    <input name="author" placeholder="Autor" required>
+    <button>Guardar</button>
+  </form>
+
+  <h2>Lista</h2>
+  <ul>
+    {books.map(b => (
+      <li>
+        <strong>{b.title}</strong> - {b.author}
+        <form method="POST" style="display:inline">
+          <input type="hidden" name="delete" value={b.id}>
+          <button>Eliminar</button>
+        </form>
+      </li>
+    ))}
+  </ul>
+</body>
+</html>
